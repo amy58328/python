@@ -48,6 +48,7 @@ def show_temper():
 
 		pt.barh(ind,temper)
 		pt.yticks(ind,month)
+		pt.title("Program 02")
 		pt.show()
 
 	show_temper()
