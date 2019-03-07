@@ -2,11 +2,12 @@ import matplotlib.pyplot as pt
 import numpy as np
 
 pt.rcParams['font.sans-serif']=['SimHei']
+pt.rcParams['axes.unicode_minus']=False
 
 one_row=[]
 
 def main():
-
+	pt.rcParams['font.sans-serif']=['SimHei']
 	target_file = 'climate.txt'
 	with open(target_file, 'r', encoding='utf-8') as fp:
 		raw_data = fp.readlines()
@@ -48,6 +49,7 @@ def show_temper():
 
 		pt.barh(ind,temper)
 		pt.yticks(ind,month)
+		pt.title(one_row[a][0])
 		pt.show()
 
 	show_temper()

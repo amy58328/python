@@ -2,6 +2,7 @@ import matplotlib.pyplot as pt
 import numpy as np
 
 pt.rcParams['font.sans-serif']=['SimHei']
+pt.rcParams['axes.unicode_minus']=False
 
 one_row=[]
 
@@ -48,7 +49,8 @@ def show_temper():
 
 		pt.barh(ind,temper)
 		pt.yticks(ind,month)
-		pt.title("Program 02")
+		pt.rcParams['font.sans-serif']=['SimHei']
+		pt.title("{}".format(one_row[a][0]))
 		pt.show()
 
 	show_temper()
