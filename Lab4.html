@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>web Lab4</title>
+	<script src="http://www.w3school.com.cn/jquery/jquery-1.11.1.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			$(".flip").hover(function(){
+				$(".panel").slideToggle("slow");
+			});
+
+		});
+	</script>
+
+	<style>
+		#main {
+			margin-left: 30%;
+			
+		}
+		div.panel,p.flip {
+			margin: 0px;
+			padding: 5px;
+			text-align: center;
+			background: #9933fa;
+			border: solid 1px #dda0dd;
+			width: 250px;
+		}
+		div.panel {
+			display: none;
+		}
+
+		#left{
+			float: left;
+			color: #b22222
+		}
+
+		#right{
+			float: right;
+
+		}
+
+	</style>
+</head>
+
+<body background="https://www.crazyppt.com/wp-content/uploads/2018/10/1-150620145049-1200x628.jpg">
+	<div id = "main">
+		<h1>讓我介紹一下我的愛吧</h1>
+		<p>雖然這是web作業 ( ꒪⌓꒪)</p>
+		<h2 >紫棋寶寶</h2>
+	</div>
+
+	<div id = "left">
+		<h4>蜂鳥實在是太可惡了</h4>
+		<h4>不過紫棋有Mark的陪伴</h4>
+		<h4>相信他們可以一起度過難關</h4>
+		<h4>我絕對不會說我很吃醋的ლ(╯⊙ε⊙ლ╰)</h4>
+	</div>
+
+	<div id="right">
+		<p>送你小心心</p>
+		<img src="https://cdn2.ettoday.net/images/3957/d3957397.jpg" width="350">
+		<p>讓你開心心</p>
+	</div>
+
+	<div id = "main">
+		<p class="flip">滑過來看孝順的紫棋寶寶</p>
+		<div class = "panel" >
+			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsIjEScWO87RM15qq2o0BoGWeZbYaTsQ9jXaYUqQ-gqghYYFwXEQ">
+		</div>
+	</div>
+	
+
+</body>
+</html>
