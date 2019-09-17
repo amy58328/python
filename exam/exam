@@ -1,0 +1,205 @@
+import numpy as np
+import cv2
+
+
+
+def InsertLogo(img1, img2, x, y):
+	# I want to put logo on top-left corner, So I create a ROI
+	rows,cols,channels = img2.shape
+	roi = img1[x:x+rows, y:y+cols ]
+	# Now create a mask of logo and create its inverse mask also
+	img2gray = cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
+	ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
+	mask_inv = cv2.bitwise_not(mask)
+	# Now black-out the area of logo in ROI
+	img1_bg = cv2.bitwise_and(roi,roi,mask = mask_inv)
+	# Take only region of logo from logo image.
+	img2_fg = cv2.bitwise_and(img2,img2,mask = mask)
+	# Put logo in ROI and modify the main image
+	dst = cv2.add(img1_bg,img2_fg)
+	img1[x:x+rows, y:y+cols ] = dst
+	return img1
+
+	
+def InsertLogo_2(img1, img2, x, y):
+	# Direct access pixels of images to put logo
+	rows,cols,channels = img2.shape
+	roi = img1[x:x+rows, y:y+cols ]
+	# Now create a mask of logo and create its inverse mask also
+	img2gray = cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
+	ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
+	for i in range(rows):
+		for j in range(cols):
+			if mask[i][j] != 0:
+				img1[i+x][j+y]=img2[i][j]
+	return img1
+	
+cap = cv2.VideoCapture(0)
+ret, frame = cap.read()
+rowsFrame,colsFrame,channelsFrame = frame.shape
+
+blank_image = np.zeros((len(frame),len(frame[0]),3), np.uint8)
+p1 = cv2.imread('p1.png')
+p1 = cv2.resize(p1, (100, 100)) 
+rowsp1,colsp1,channelsp1 = p1.shape
+p1_x=100
+p1_y=0
+p1_in = 0
+
+p2 = cv2.imread('p2.png')
+p2 = cv2.resize(p2, (100, 100)) 
+rowsp2,colsp2,channelsp2 = p2.shape
+p2_x=100
+p2_y=200
+p2_in = 0
+
+p3 = cv2.imread('p3.png')
+p3 = cv2.resize(p3, (100, 100)) 
+rowsp3,colsp3,channelsp3 = p3.shape
+p3_x=100
+p3_y=400
+p3_in = 0
+
+lower_blue = np.array([110, 50, 50], dtype=np.uint8)
+upper_blue = np.array([130,255,255], dtype=np.uint8)
+lower_Hue = np.array([0, 43, 74], dtype=np.uint8)
+upper_Hue = np.array([20, 255, 255], dtype=np.uint8)
+xBlue=0
+yBlue = 0
+
+score = 0
+
+while(True):
+	# Capture frame-by-frame
+	if(score != 3):	
+		ret, frame = cap.read()
+		frame=cv2.flip(frame,1)
+		mode = True
+		# blue########################################################
+		hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+		maskBlue = cv2.inRange(hsv, lower_blue, upper_blue)
+		kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+		maskBlue = cv2.erode(maskBlue, kernel, iterations = 2)
+		maskBlue = cv2.dilate(maskBlue, kernel, iterations = 2)
+		cv2.imshow('maskBlue',maskBlue) 
+
+		centerBlue = None
+		cnts = cv2.findContours(maskBlue.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+
+		if len(cnts) > 0:
+			c = max(cnts, key=cv2.contourArea)
+			((xBlue, yBlue), radius) = cv2.minEnclosingCircle(c)
+			M = cv2.moments(c)
+			xBlue=int(M["m10"] / M["m00"])
+			yBlue=int(M["m01"] / M["m00"])
+			centerBlue = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+			if radius > 10:
+				mode = False
+				cv2.circle(frame, centerBlue, 5, (0, 0, 255), -1)
+
+		#############################################################
+		# skin#######################################################
+		# hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+		maskskin = cv2.inRange(hsv, lower_Hue, upper_Hue)
+		kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+		maskskin = cv2.erode(maskskin, kernel, iterations = 2)
+		maskskin = cv2.dilate(maskskin, kernel, iterations = 2)
+		# Bitwise-AND mask and original image
+		res = cv2.bitwise_and(frame,frame, mask= maskskin)
+
+		centerskin = None
+		cnts = cv2.findContours(maskskin.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+
+		if len(cnts) > 0:
+			skin = max(cnts, key=cv2.contourArea)
+			((xskin, yskin), radius) = cv2.minEnclosingCircle(skin)
+			M = cv2.moments(skin)
+			xskin=int(M["m10"] / M["m00"]) 
+			yskin=int(M["m01"] / M["m00"]) 
+			centerskin = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"])-200)
+			if radius > 10:
+				mode = False
+				cv2.circle(frame, centerskin, 5, (0, 0, 255), -1)
+				InsertLogo(frame, p1, p1_x, p1_y)
+				InsertLogo(frame, p2, p2_x, p2_y)
+				InsertLogo(frame, p3, p3_x, p3_y)
+
+		#############################################################
+		if (mode == True):
+			InsertLogo(frame, p1, p1_x, p1_y)
+			InsertLogo(frame, p2, p2_x, p2_y)
+			InsertLogo(frame, p3, p3_x, p3_y)
+
+			cv2.imshow('frame',frame)
+		else:
+			# InsertLogo(xBlue, yBlue)
+			
+			if(xBlue > p1_y and xBlue < p1_y + colsp1):
+				if(yBlue > p1_x and yBlue < p1_x + rowsp1):
+					if(xBlue -50 > 0 and xBlue -50 < colsFrame):
+						p1_y = xBlue -50
+					if(yBlue -50 > 0 and yBlue -50 < rowsFrame):
+						p1_x = yBlue-50
+					InsertLogo(frame, p1, p1_x, p1_y)
+					InsertLogo(frame, p2, p2_x, p2_y)
+					InsertLogo(frame, p3, p3_x, p3_y)
+
+			elif(xBlue > p2_y and xBlue < p2_y + colsp1):
+				if(yBlue > p2_x and yBlue < p2_x + rowsp1):
+					if(xBlue -50 > 0 and xBlue -50 < colsFrame):
+						p2_y = xBlue -50
+					if(yBlue -50 > 0 and yBlue -50 < rowsFrame):
+						p2_x = yBlue-50
+
+
+					InsertLogo(frame, p1, p1_x, p1_y)
+					InsertLogo(frame, p2, p2_x, p2_y)
+					InsertLogo(frame, p3, p3_x, p3_y)
+
+			elif(xBlue > p3_y and xBlue < p3_y + colsp1):
+				if(yBlue > p3_x and yBlue < p3_x + rowsp1):
+					if(xBlue -50 > 0 and xBlue -50 < colsFrame):
+						p3_y = xBlue -50
+					if(yBlue -50 > 0 and yBlue -50 < rowsFrame):
+						p3_x = yBlue-50
+					InsertLogo(frame, p1, p1_x, p1_y)
+					InsertLogo(frame, p2, p2_x, p2_y)
+					InsertLogo(frame, p3, p3_x, p3_y)
+
+			else:
+				InsertLogo_2(frame, p1, p1_x, p1_y)
+				InsertLogo_2(frame, p2, p2_x, p2_y)
+				InsertLogo_2(frame, p3, p3_x, p3_y)
+
+			cv2.imshow('frame',frame)
+
+		if(xskin >p1_y and xskin < p1_y+colsp1):
+			if(yskin-200 > p1_x and yskin-200 < p1_x+rowsp1):
+				if(p1_in == 0):
+					p1_in = 1
+					score += 1
+
+		if(xskin >p2_y and xskin < p2_y+colsp2):
+			if(yskin-200 > p2_x and yskin-200 < p2_x+rowsp2):
+				if(p2_in == 0):
+					p2_in = 1
+					score += 1
+
+		if(xskin >p3_y and xskin < p3_y+colsp1):
+			if(yskin-200 > p3_x and yskin-200 < p3_x+rowsp3):
+				if(p3_in == 0):
+					p3_in = 1
+					score += 1
+		print(score)
+
+
+	if(score == 3):
+		text = "your win"
+		cv2.putText(frame, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX,1, (255,0,0), 1, cv2.LINE_AA)
+		cv2.imshow('frame',frame)
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
+
+# When everything done, release the capture
+cap.release()
+cv2.destroyAllWindows()
