@@ -22,10 +22,11 @@ poseHandler = PoseHandler()
 
 def init():
     #now = datetime.datetime.now().strftime("%H:%M:%S.%f") 
-    hostname = socket.gethostname()
-    ip = socket.gethostbyname(hostname)
-    print('server ip address:',ip)
-    ADDRESS = ('172.16.53.12',8713)#('172.16.53.12', 8713)#('140.124.182.79', 8712) 
+    # hostname = socket.gethostname()
+    # ip = socket.gethostbyname(hostname)
+    # print('server ip address:',ip)
+    # ADDRESS = ('172.16.53.12',8713)#('172.16.53.12', 8713)#('140.124.182.79', 8712) 
+    ADDRESS = ('127.0.0.1',8713)
     global g_socket_server, packet_size
     g_socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
     g_socket_server.bind(ADDRESS)

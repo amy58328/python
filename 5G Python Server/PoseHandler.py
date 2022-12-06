@@ -8,25 +8,36 @@ import serial
 import numpy as np
 import warnings
 import socket
+import paho.mqtt.client as mqtt
 
-real_connect = False    #實體手臂是否連接
 
-if real_connect:
-    rtde_c = rtde_control.RTDEControlInterface("192.168.49.130")#實體手臂"192.168.50.7"#10.1.1.130
-    rtde_r = rtde_receive.RTDEReceiveInterface("192.168.49.130")#實體手臂"192.168.50.7"#10.1.1.130
+# real_connect = False    #實體手臂是否連接
 
-    #pose = [0.3209,-0.11057,0.17505,2.23,-2.2195,0]#實體手臂
-    #rtde_c.moveL(pose)#實體手臂
+# if real_connect:
+#     rtde_c = rtde_control.RTDEControlInterface("192.168.49.130")#實體手臂"192.168.50.7"#10.1.1.130
+#     rtde_r = rtde_receive.RTDEReceiveInterface("192.168.49.130")#實體手臂"192.168.50.7"#10.1.1.130
 
-    pose = [0,-90,-90,-90,90,0]
-    pose_to_arm = [pose[0]*(math.pi/180),pose[1]*(math.pi/180),pose[2]*(math.pi/180),pose[3]*(math.pi/180),pose[4]*(math.pi/180),pose[5]*(math.pi/180)]
-    rtde_c.moveJ(pose_to_arm)#實體手臂
-    print("----------------------------------------1-------------------------------------")
-    print(rtde_r.getTargetQ())
-    print(rtde_r.getActualQ())
-    print(rtde_r.getActualTCPPose())
-    print(rtde_r.getTargetTCPPose())
-    print("----------------------------------------2-------------------------------------")
+#     #pose = [0.3209,-0.11057,0.17505,2.23,-2.2195,0]#實體手臂
+#     #rtde_c.moveL(pose)#實體手臂
+
+#     pose = [0,-90,-90,-90,90,0]
+#     pose_to_arm = [pose[0]*(math.pi/180),pose[1]*(math.pi/180),pose[2]*(math.pi/180),pose[3]*(math.pi/180),pose[4]*(math.pi/180),pose[5]*(math.pi/180)]
+#     rtde_c.moveJ(pose_to_arm)#實體手臂
+#     print("----------------------------------------1-------------------------------------")
+#     print(rtde_r.getTargetQ())
+#     print(rtde_r.getActualQ())
+#     print(rtde_r.getActualTCPPose())
+#     print(rtde_r.getTargetTCPPose())
+#     print("----------------------------------------2-------------------------------------")
+
+try:
+    clinet = mqtt.Client()
+    clinet.username_pw_set("james04","0404xx")
+    clinet.connect("140.124.201.124",1883)
+except:
+    print("failt to connect MQTT Broker")
+
+
 
 velocity = 0.05
 acceleration = 0.05
@@ -53,8 +64,13 @@ class PoseHandler:
             pose = [(float)(splitPacket[0]),(float)(splitPacket[1]),(float)(splitPacket[2]),(float)(splitPacket[3]),(float)(splitPacket[4]),(float)(splitPacket[5])]
             pose_to_arm = [pose[0]*(math.pi/180),pose[1]*(math.pi/180),pose[2]*(math.pi/180),pose[3]*(math.pi/180),pose[4]*(math.pi/180),pose[5]*(math.pi/180)]
             #self.SetPose(pose)
-            if real_connect:
-                rtde_c.servoJ(pose_to_arm, velocity, acceleration, dt, lookahead_time, gain)#實體手臂
+            # if real_connect:
+            message = {"command":[1,0,[pose_to_arm, velocity, acceleration, dt, lookahead_time, gain]]}
+
+            print("=======muti=======\n",message,"\n========\n")
+            clinet.publish("AGV Information",json.dumps(message))
+                # rtde_c.servoJ(pose_to_arm, velocity, acceleration, dt, lookahead_time, gain)#實體手臂
+                
             #end = time.time()
             #duration = end - start
             # if duration < dt:
@@ -64,14 +80,20 @@ class PoseHandler:
             pose = [(float)(splitPacket[0]),(float)(splitPacket[1]),(float)(splitPacket[2]),(float)(splitPacket[3]),(float)(splitPacket[4]),(float)(splitPacket[5])]
             pose_to_arm = [pose[0]*(math.pi/180),pose[1]*(math.pi/180),pose[2]*(math.pi/180),pose[3]*(math.pi/180),pose[4]*(math.pi/180),pose[5]*(math.pi/180)]
             #self.SetPose(pose)
-            if real_connect:
-                rtde_c.moveJ(pose_to_arm)#實體手臂
+            # if real_connect:
+            message = {"command":[1,0,[pose_to_arm, 0, 0, 0, 0, 0]]}
+            print("=======one=======\n",message,"\n========\n")
+            try:
+                clinet.publish("AGV Information",json.dumps(message))
+            except Exception as e:
+                print(e)
+                # rtde_c.moveJ(pose_to_arm)#實體手臂
             
         else:
             print("Error Code")
             print("----------------------------------------1-------------------------------------")
-        print(rtde_r.getTargetQ())
-        print(rtde_r.getActualQ())
-        print(rtde_r.getActualTCPPose())
-        print(rtde_r.getTargetTCPPose())
-        print("----------------------------------------2-------------------------------------")
+        # print(rtde_r.getTargetQ())
+        # print(rtde_r.getActualQ())
+        # print(rtde_r.getActualTCPPose())
+        # print(rtde_r.getTargetTCPPose())
+        # print("----------------------------------------2-------------------------------------")
