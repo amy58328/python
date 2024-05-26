@@ -1,4 +1,4 @@
-from openni import openni2
+# from openni import openni2
 import numpy as np
 import cv2
 import paho.mqtt.client as mqtt
@@ -30,11 +30,11 @@ class Client:
     def on_message(self,client, userdata, msg):
         print(msg.topic+" = "+ str(msg.payload).split('\'')[1])
 
-        if (msg.topic == "INPUT_COMMAND"):
+        if (msg.topic == "SendImage"  or msg.topic == "Repositioning"):
             global frame,depth
 
             cv2.imwrite("./temp.jpg",frame)
-            cv2.imwrite("./temp_dpeth.jpg",depth)
+            # cv2.imwrite("./temp_dpeth.jpg",depth)
             sendIMG()
 
 
@@ -88,7 +88,7 @@ def Depth_camera():
 
 if __name__ == "__main__": 
     ## MQTT
-    client = Client(MQTT_IP,MQTT_PORT,"james01","0101xx",[("INPUT_COMMAND",2),("IMG_PATH",2)])
+    client = Client(MQTT_IP,MQTT_PORT,"james01","0101xx",[("SendImage",2),("IMG_PATH",2),("Repositioning",2)])
     mqtt_thread = threading.Thread(target=client.loop)
     mqtt_thread.daemon = True
     mqtt_thread.start()
@@ -96,23 +96,23 @@ if __name__ == "__main__":
 
     # RBG
     # camera_number = input("please input the number of camera:")
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
-    # Depth
-    openni2.initialize()
+    # # Depth
+    # openni2.initialize()
 
-    dev = openni2.Device.open_any()
-    print(dev.get_device_info())
+    # dev = openni2.Device.open_any()
+    # print(dev.get_device_info())
 
-    depth_stream = dev.create_depth_stream()
-    depth_stream.start()
+    # depth_stream = dev.create_depth_stream()
+    # depth_stream.start()
 
     # cv2.namedWindow('depth')
     # cv2.setMouseCallback('depth',mousecallback)
 
     while True:
         RBG_camera()
-        Depth_camera()
+        # Depth_camera()
 
 
         key = cv2.waitKey(1)
