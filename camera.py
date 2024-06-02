@@ -32,7 +32,7 @@ class Client:
 
         print(msg.topic+" = "+ str(msg.payload).split('\'')[1])
 
-        if (msg.topic == "SendImage"  or msg.topic == "Repositioning"):
+        if (msg.topic == "INPUT_COMMAND"  or msg.topic == "Repositioning"):
             global frame,depth
 
             cv2.imwrite("./temp.jpg",frame)
@@ -90,11 +90,7 @@ def Depth_camera():
 
 if __name__ == "__main__": 
     ## MQTT
-<<<<<<< HEAD
     client = Client(MQTT_IP,MQTT_PORT,"james01","0101xx",[("INPUT_COMMAND",2),("IMG_PATH",2),("Repositioning",2)])
-=======
-    client = Client(MQTT_IP,MQTT_PORT,"james01","0101xx",[("SendImage",2),("IMG_PATH",2),("Repositioning",2)])
->>>>>>> c09554c2a2dbbb88259648784a35b53704497317
     mqtt_thread = threading.Thread(target=client.loop)
     mqtt_thread.daemon = True
     mqtt_thread.start()
@@ -102,13 +98,9 @@ if __name__ == "__main__":
 
     # RBG
     # camera_number = input("please input the number of camera:")
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
-<<<<<<< HEAD
     # Depth
-=======
-    # # Depth
->>>>>>> c09554c2a2dbbb88259648784a35b53704497317
     # openni2.initialize()
 
     # dev = openni2.Device.open_any()
@@ -131,30 +123,3 @@ if __name__ == "__main__":
 
     cap.release()
     cv2.destroyAllWindows()
-
-
-# while True:
-
-#     frame = depth_stream.read_frame()
-#     # dframe_data = np.array(frame.get_buffer_as_triplet()).reshape([480, 640, 2])
-#     dframe_data = np.array(frame.get_buffer_as_triplet())
-#     dpt1 = np.asarray(dframe_data[:, :, 0], dtype='float32')
-#     dpt2 = np.asarray(dframe_data[:, :, 1], dtype='float32')
-    
-#     dpt2 *= 255
-#     dpt = dpt1 + dpt2
-    
-#     cv2.imshow('depth', dpt)
-
-#     # ret,frame = cap.read()
-#     # cv2.imshow('color', frame)
-
-#     key = cv2.waitKey(1)
-#     if int(key) == ord('q'):
-#         break
-# depth_stream.stop()
-# dev.close()
-
-
-
-

@@ -12,7 +12,7 @@ while True:
         x1, y1 = int(int(input_arr[0])/w_deform), int(int(input_arr[1])/h_deform)  
         x2, y2 = int(int(input_arr[2])/w_deform), int(int(input_arr[3])/h_deform)  
 
-        cv2.rectangle(image, (x1, y1), (x2, y2), (255, 0, 0), 2) 
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2) 
 
     else:
         x = int(int(input_arr[0])/w_deform)
