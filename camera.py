@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     # RBG
     # camera_number = input("please input the number of camera:")
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     # Depth
     # openni2.initialize()
