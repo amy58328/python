@@ -32,7 +32,7 @@ class Client:
 
         print(msg.topic+" = "+ str(msg.payload).split('\'')[1])
 
-        if (msg.topic == "INPUT_COMMAND"  or msg.topic == "Repositioning"):
+        if (msg.topic == "INPUT_COMMAND"  or msg.topic == "Repositioning" or msg.topic == "VQA_COMMAND"):
             global frame,depth
 
             cv2.imwrite("./temp.jpg",frame)
@@ -90,7 +90,7 @@ def Depth_camera():
 
 if __name__ == "__main__": 
     ## MQTT
-    client = Client(MQTT_IP,MQTT_PORT,"james01","0101xx",[("INPUT_COMMAND",2),("IMG_PATH",2),("Repositioning",2)])
+    client = Client(MQTT_IP,MQTT_PORT,"james01","0101xx",[("INPUT_COMMAND",2),("VQA_COMMAND",2),("Repositioning",2)])
     mqtt_thread = threading.Thread(target=client.loop)
     mqtt_thread.daemon = True
     mqtt_thread.start()
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     # RBG
     # camera_number = input("please input the number of camera:")
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     # Depth
     # openni2.initialize()
